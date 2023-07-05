@@ -1,21 +1,20 @@
 
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { Chat } from '../pages/chat/chat';
 
 
 
 const AppRoute = {
   Main: '/',
-  Second: 'second'
+  Chat: 'chat'
 
 
 };
 
 function MainPage() {
-  return <div>Main<div><Link to={AppRoute.Second}>Second</Link></div></div>
+  return <div>Main<div><Link to={AppRoute.Chat}>Chat</Link></div></div>
 }
-function SecondPage() {
-  return <div>SecondPage<div><Link to={AppRoute.Main}>Main</Link></div></div>
-}
+
 
 export function App() {
 
@@ -25,7 +24,7 @@ export function App() {
               <Routes>
 
                 <Route path={AppRoute.Main} element={<MainPage />} />
-                <Route path={AppRoute.Second} element={<SecondPage />} />
+                <Route path={AppRoute.Chat} element={<Chat />} />
 
               </Routes>
 

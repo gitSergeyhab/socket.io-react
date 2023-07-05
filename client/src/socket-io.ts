@@ -1,5 +1,5 @@
 import { connect } from 'socket.io-client';
-import { SERVER_URL } from './const/const';
+import { SERVER_URL } from './const';
 
 
 const socket = connect(SERVER_URL);

@@ -36,16 +36,53 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api', router);
 
-type Message = {
+
+type Data = { id: string, name: string };
+
+type JoinData = { user: Data, room: Data };
+
+type MessageData = {
     userId: string;
-    avatar?: string;
-    roles: string[];
-    text: string;
+    roomId: string;
     nik: string;
+    text: string;
 }
 
 io.on('connection', (socket) => {
+    socket.on('join', (data: JoinData) => {
+        const roomId = data.room.id
+        socket.join(roomId);
+        const timestamp = Date.now()
+        const sendData = {
+            isJoin: true, 
+            text: `user ${data.user.name} joined to room`,
+            userId: data.user.id, 
+            nik: data.user.name,
+            timestamp,
+            messageId: `${timestamp}-${data.user.id}`
+        }
+        console.log({sendData}, 'join');
+        
+        socket.to(roomId).emit('response', sendData);
+    });
 
+
+    socket.on('message', (data: MessageData) => {
+        const {nik, roomId, text, userId} = data;
+        const timestamp = Date.now();
+
+        const sendData = {
+            text,
+            userId, 
+            nik,
+            timestamp,
+            messageId: `${timestamp}-${userId}`
+        }
+
+        io.to(roomId).emit('response', sendData);
+    })
+
+    socket.on('leave', (data) => console.log({data}, 'leave'))
     console.log(socket.id, '____socket___ => connection <=');
 
     // socket.on('add-user', (data) => addUserHandler(io, data))
@@ -62,7 +99,6 @@ const start = async() => {
     } catch (err) {
         console.log(' -- Start Server Error: ')
         console.log(err)
-
     }
 }
 
