@@ -9,6 +9,10 @@ import {Server} from 'socket.io';
 import { router } from './routers';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
+import { joinHandler } from './handlers/join-handler';
+import { JoinData, MessageData } from './types';
+import { messageHandler } from './handlers/message-handler';
+import { leaveHandler } from './handlers/leave-handler';
 
 const app = express();
 const server = new http.Server(app);
@@ -37,55 +41,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api', router);
 
 
-type Data = { id: string, name: string };
-
-type JoinData = { user: Data, room: Data };
-
-type MessageData = {
-    userId: string;
-    roomId: string;
-    nik: string;
-    text: string;
-}
-
 io.on('connection', (socket) => {
-    socket.on('join', (data: JoinData) => {
-        const roomId = data.room.id
-        socket.join(roomId);
-        const timestamp = Date.now()
-        const sendData = {
-            isJoin: true, 
-            text: `user ${data.user.name} joined to room`,
-            userId: data.user.id, 
-            nik: data.user.name,
-            timestamp,
-            messageId: `${timestamp}-${data.user.id}`
-        }
-        console.log({sendData}, 'join');
-        
-        socket.to(roomId).emit('response', sendData);
-    });
-
-
-    socket.on('message', (data: MessageData) => {
-        const {nik, roomId, text, userId} = data;
-        const timestamp = Date.now();
-
-        const sendData = {
-            text,
-            userId, 
-            nik,
-            timestamp,
-            messageId: `${timestamp}-${userId}`
-        }
-
-        io.to(roomId).emit('response', sendData);
-    })
-
-    socket.on('leave', (data) => console.log({data}, 'leave'))
     console.log(socket.id, '____socket___ => connection <=');
-
-    // socket.on('add-user', (data) => addUserHandler(io, data))
+    socket.on('join', (data: JoinData) => joinHandler(data, io, socket) );
+    socket.on('message', (data: MessageData) => messageHandler(data, io, socket))
+    socket.on('leave', (data: JoinData) => leaveHandler(data, io, socket))
+    
     socket.on('disconnect', () => {
         console.log(socket.id, '____socket___ => DISconnect <=');
     })

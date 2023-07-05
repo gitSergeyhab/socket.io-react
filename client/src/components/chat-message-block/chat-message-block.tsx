@@ -2,25 +2,19 @@ import { useState, useEffect, useRef } from 'react';
 import socket from '../../socket-io';
 import { ChartLink,  ChatMessageLI, ChatMessageUL, MessageP, TextDiv, UserDateWrapperDiv } from './chat-message-block-style';
 import { formatDateFromTimeStamp } from '../../utils/date-utils';
-import {  Message } from '../../types';
-
-
-
+import { Message } from '../../types';
 
 
 function ChatMessage({message, userId: currentUserId}: {message: Message, userId: string}) {
 
-
-  const { nik, text, userId, timestamp, isJoin } = message;
+  const { nik, text, userId, timestamp, isAuto } = message;
   const side = (currentUserId === userId) ? 'end' : 'start';
   const formatDate =  formatDateFromTimeStamp(timestamp);
-
   const userColor = currentUserId === userId ? 'golden' : '#FFF'
 
-  if (isJoin) {
-    return <ChatMessageLI>{formatDate} / {nik} вошел в чат</ChatMessageLI>
+  if (isAuto) {
+    return <ChatMessageLI>{formatDate} / {text} </ChatMessageLI>
   }
-
 
   const textBlock = (
     <TextDiv color={userColor} side={side}>
@@ -33,9 +27,6 @@ function ChatMessage({message, userId: currentUserId}: {message: Message, userId
       <MessageP>{text} </MessageP>
     </TextDiv>
   );
-
-
-
 
   return (
     <ChatMessageLI side={side}>
@@ -57,17 +48,23 @@ export function ChatMessageBlock({color, roomId, userId}: ChatMessageBlockProps)
 
 
   useEffect(() => {
-    socket.on('response', (message) => {
-      console.log({message})
-      setMessages((prev) => [...prev, message] );
-      const ul = ulRef.current
+    const ul = ulRef.current;
+    const autoScrollDown = () => {
       if(ul) {
         setTimeout(() => {
           ul.scrollTop = ul.scrollHeight;
         }, 100)
-
       }
+    }
+    socket.on('response', (message: Message) => {
+      setMessages((prev) => [...prev, message] );
+      autoScrollDown();
+    })
 
+    socket.on('response_all_messages', (allMessages: Message[]) => {
+      console.log({allMessages})
+      setMessages(allMessages);
+      autoScrollDown();
     })
   }, [])
 

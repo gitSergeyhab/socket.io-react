@@ -6,5 +6,5 @@ export type Message = {
   nik: string;
   text: string;
   timestamp: number;
-  isJoin?: boolean
+  isAuto?: boolean
 }

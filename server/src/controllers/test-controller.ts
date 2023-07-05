@@ -1,8 +1,16 @@
 import { Request, Response } from "express";
 
 
-const rooms = [{id: '1', name: 'Болталка'}, {id: '2', name: 'Поддержка'}];
-const users = [{id: '1', name: 'First'}, {id: '2', name: 'Second'}, {id: '3', name: 'Third'}];
+export const rooms = [
+    {id: '1', name: 'Болталка'}, 
+    {id: '2', name: 'Поддержка'}
+];
+
+export const users = [
+    {id: '1', name: 'First'}, 
+    {id: '2', name: 'Second'}, 
+    {id: '3', name: 'Third'}
+];
 
 
 
